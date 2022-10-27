@@ -22,7 +22,6 @@ customer_orders as (
     from orders
 
     group by 1
-
 ),
 
 final as (
