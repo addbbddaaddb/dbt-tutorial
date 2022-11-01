@@ -1,3 +1,7 @@
+--{%- set payment_methods = get_payment_methods() -%}
+
+{% set payment_methods = ['credit_card', 'coupon', 'bank_transfer', 'gift_card'] %}
+
 with orders as  (
     select * from {{ ref('stg_orders' )}}
 ),
@@ -9,8 +13,11 @@ payments as (
 order_payments as (
     select
         order_id,
-        sum(case when status = 'success' then amount end) as amount
-
+       sum(case when status = 'success' then amount end) as amount,
+       {%- for payment_method in payment_methods %}
+       sum(case when payment_method = '{{payment_method}}' then amount end) as {{payment_method}}_amount
+        {%- if not loop.last %},{% endif -%}
+        {% endfor %}
     from payments
     group by 1
 ),
@@ -21,7 +28,10 @@ final as (
         orders.order_id,
         orders.customer_id,
         orders.order_date,
-        coalesce(order_payments.amount, 0) as amount
+        coalesce(order_payments.amount, 0) as amount,
+        {% for payment_method in payment_methods -%}
+        order_payments.{{ payment_method }}_amount,
+        {% endfor -%}
 
     from orders
     left join order_payments using (order_id)
