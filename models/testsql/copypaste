@@ -1,0 +1,57 @@
+{#
+
+{% set results = run_query(payment_methods_query) %}
+
+{{ log(results, info=True) }}
+
+
+
+{{ return(results[column]) }}
+#}
+
+{% set payment_methods = get_column(results, 'payment_method') %}
+
+
+Compilation Error dbt found two schema.yml entries
+ for the same resource named stg_customers. Resources
+  and their associated columns may only be described a
+   single time. To fix this, remove the resource entry
+    for stg_customers in one of these files: -
+         models/staging/jaffle_shop/stg_jaffle_shop.yml models/schema.yml
+
+
+
+schema.yml
+
+
+version: 2
+
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
