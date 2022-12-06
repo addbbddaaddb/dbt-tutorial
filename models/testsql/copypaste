@@ -19,10 +19,8 @@ Compilation Error dbt found two schema.yml entries
     for stg_customers in one of these files: -
          models/staging/jaffle_shop/stg_jaffle_shop.yml models/schema.yml
 
-
-
+x§
 schema.yml
-
 
 version: 2
 

@@ -10,8 +10,10 @@ with
             order_id,
             sum(case when status = 'success' then amount end) as amount,
             {%- for payment_method in payment_methods %}
-            sum(case when payment_method = '{{payment_method}}' then amount end) as {{ payment_method }}_amount
-           
+            sum(
+                case when payment_method = '{{payment_method}}' then amount end
+            ) as {{ payment_method }}_amount
+
             {%- if not loop.last %},{% endif -%}
             {% endfor %}
         from payments
@@ -27,7 +29,8 @@ with
             coalesce(order_payments.amount, 0) as amount,
             {% for payment_method in payment_methods -%}
             order_payments.{{ payment_method }}_amount
-            {%- for not loop.last %},{% endfor -%}
+            {%- if not loop.last %},{% endif -%}
+            {% endfor %}
 
         from orders
         left join order_payments using (order_id)
